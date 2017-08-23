@@ -1,10 +1,13 @@
-const gulp        = require('gulp'),
-      browserSync = require('browser-sync').create(),
-      pug         = require('gulp-pug'),
-      sass        = require('gulp-sass'),
-      spritesmith = require('gulp.spritesmith'),
-      rimraf      = require('rimraf'),
-      rename      = require('gulp-rename');
+const gulp         = require('gulp'),
+      browserSync  = require('browser-sync').create(),
+      pug          = require('gulp-pug'),
+      sass         = require('gulp-sass'),
+      spritesmith  = require('gulp.spritesmith'),
+      rimraf       = require('rimraf'),
+      rename       = require('gulp-rename'),
+      autoprefixer = require('gulp-autoprefixer'),
+      sourcemaps   = require('gulp-sourcemaps');
+      
 
 
 
@@ -35,9 +38,13 @@ gulp.task('templates:compile', function buildHTML() {
 
 // Sass
 gulp.task('styles:compile', function () {
-  return gulp.src("source/styles/main.sass")
+  return gulp.src("source/styles/main.scss")
     .pipe(sass({outputStyle: 'compressed'}).on('error', sass.logError))
     .pipe(rename('main.min.css'))
+    .pipe(autoprefixer({
+        browsers: ['last 2 versions'],
+        cascade: false
+    }))
     .pipe(gulp.dest('build/css'));
 });
 
@@ -46,10 +53,10 @@ gulp.task('sprite', function (cb) {
   const spriteData = gulp.src('source/images/icons/*.png').pipe(spritesmith({
     imgName: 'sprite.png',
     imgPath: '../images/sprite.png',
-    cssName: 'sprite.sass'
+    cssName: 'sprite.scss'
   }));
    spriteData.img.pipe(gulp.dest('build/images/'));
-   spriteData.css.pipe(gulp.dest('source/style/global/'));
+   spriteData.css.pipe(gulp.dest('source/styles/global/'));
    cb();
 });
 
@@ -80,7 +87,7 @@ gulp.task('copy', gulp.parallel('copy:fonts', 'copy:images'));
 
 gulp.task('watch', function() {
     gulp.watch('source/template/**/*.pug', gulp.series('templates:compile'));
-    gulp.watch('source/styles/**/*.sass', gulp.series('styles:compile'));
+    gulp.watch('source/styles/**/*.scss', gulp.series('styles:compile'));
 });
 
 
